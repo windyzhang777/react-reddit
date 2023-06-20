@@ -29,8 +29,8 @@ export class PostResolver {
   @Query(() => PostResponse)
   async posts(
     @Arg("limit", () => Int) limit: number,
-    @Arg("cursor", () => String, { nullable: true }) cursor: string | null,
-    @Info() info: any
+    @Arg("cursor", () => String, { nullable: true })
+    cursor: string | null
   ): Promise<PostResponse> {
     // await sleep(3000);
     // return Post.find();
@@ -75,7 +75,9 @@ export class PostResolver {
   }
 
   @Query(() => Post, { nullable: true })
-  post(@Arg("postId") id: number): Promise<Post | undefined> {
+  post(
+    @Arg("postId") id: number
+  ): Promise<Post | undefined> {
     // return Post.findOne(id);
     return Post.findOne({ where: { id } });
   }
@@ -108,7 +110,8 @@ export class PostResolver {
   @Mutation(() => Post, { nullable: true })
   async updatePost(
     @Arg("postId") id: number,
-    @Arg("title", () => String, { nullable: true }) title: string | null
+    @Arg("title", () => String, { nullable: true })
+    title: string | null
   ): Promise<Post | undefined> {
     const found = await Post.findOne(id);
     if (!found) return undefined;
@@ -119,7 +122,9 @@ export class PostResolver {
   }
 
   @Mutation(() => Boolean)
-  async deletePost(@Arg("postId") id: number): Promise<boolean> {
+  async deletePost(
+    @Arg("postId") id: number
+  ): Promise<boolean> {
     // try {
     await Post.delete(id);
     // } catch {
