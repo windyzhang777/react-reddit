@@ -1,5 +1,5 @@
-query Posts($limit: Int!, $cursor: String) {
-  posts(limit: $limit, cursor: $cursor) {
+query Posts($cursor: String, $limit: Int!) {
+  posts(cursor: $cursor, limit: $limit) {
     hasMore
     posts {
       id
@@ -7,6 +7,12 @@ query Posts($limit: Int!, $cursor: String) {
       updatedAt
       title
       textSnippet
+      points
+      author {
+        id
+        username
+        email
+      }
     }
   }
 }

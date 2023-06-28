@@ -43,6 +43,7 @@ const Index = () => {
               key={p.id}
             >
               <Heading fontSize="xl">{p.title}</Heading>
+              <Text>posted by {p.author.username}</Text>
               <Text mt={4}>{p.textSnippet}</Text>
             </Box>
           ))}
