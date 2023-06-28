@@ -55,13 +55,11 @@ export class UserResolver {
     const hashedPassword = await argon2.hash(credentials.password);
     let user;
     try {
-      // method 1
       // user = await User.create({
       //   username: credentials.username,
       //   email: credentials.email,
       //   password: hashedPassword,
       // }).save();
-      // method 2 query builder method
       const result = await getConnection()
         .createQueryBuilder()
         .insert() // insert/update/delete
@@ -202,7 +200,6 @@ export class UserResolver {
         password: await argon2.hash(newPassword),
       }
     );
-    // method 2
     // found.password = await argon2.hash(newPassword);
     // await User.save(found);
 
