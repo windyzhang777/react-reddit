@@ -23,6 +23,7 @@ export type FieldError = {
 
 export type Mutation = {
   __typename?: 'Mutation';
+  vote: Scalars['Boolean'];
   createPost: Post;
   updatePost?: Maybe<Post>;
   deletePost: Scalars['Boolean'];
@@ -32,6 +33,12 @@ export type Mutation = {
   logout: Scalars['Boolean'];
   forgotPassword: Scalars['Boolean'];
   changePassword: UserResponse;
+};
+
+
+export type MutationVoteArgs = {
+  value: Scalars['Int'];
+  postId: Scalars['Int'];
 };
 
 
@@ -119,6 +126,15 @@ export type QueryPostsArgs = {
 
 export type QueryPostArgs = {
   postId: Scalars['Float'];
+};
+
+export type Updoot = {
+  __typename?: 'Updoot';
+  value: Scalars['Float'];
+  userId: Scalars['Float'];
+  user: User;
+  postId: Scalars['Float'];
+  post: Post;
 };
 
 export type User = {
@@ -248,8 +264,8 @@ export type MeQuery = (
 );
 
 export type PostsQueryVariables = Exact<{
-  limit: Scalars['Int'];
   cursor?: Maybe<Scalars['String']>;
+  limit: Scalars['Int'];
 }>;
 
 
@@ -260,7 +276,11 @@ export type PostsQuery = (
     & Pick<PostResponse, 'hasMore'>
     & { posts: Array<(
       { __typename?: 'Post' }
-      & Pick<Post, 'id' | 'createdAt' | 'updatedAt' | 'title' | 'textSnippet'>
+      & Pick<Post, 'id' | 'createdAt' | 'updatedAt' | 'title' | 'textSnippet' | 'points'>
+      & { author: (
+        { __typename?: 'User' }
+        & Pick<User, 'id' | 'username' | 'email'>
+      ) }
     )> }
   ) }
 );
@@ -368,8 +388,8 @@ export function useMeQuery(options: Omit<Urql.UseQueryArgs<MeQueryVariables>, 'q
   return Urql.useQuery<MeQuery>({ query: MeDocument, ...options });
 };
 export const PostsDocument = gql`
-    query Posts($limit: Int!, $cursor: String) {
-  posts(limit: $limit, cursor: $cursor) {
+    query Posts($cursor: String, $limit: Int!) {
+  posts(cursor: $cursor, limit: $limit) {
     hasMore
     posts {
       id
@@ -377,6 +397,12 @@ export const PostsDocument = gql`
       updatedAt
       title
       textSnippet
+      points
+      author {
+        id
+        username
+        email
+      }
     }
   }
 }

@@ -2,7 +2,6 @@ import {
   Arg,
   Ctx,
   FieldResolver,
-  Info,
   Int,
   Mutation,
   Query,
@@ -17,13 +16,44 @@ import { ContextType } from "../types";
 import { PostInput } from "./PostInput";
 import { PostResponse } from "./PostResponse";
 // import { sleep } from "../utils/sleep";
-// import { getConnection } from "typeorm";
 
 @Resolver(Post)
 export class PostResolver {
   @FieldResolver(() => String)
   textSnippet(@Root() root: Post) {
     return root.text.slice(0, 50);
+  }
+
+  @Mutation(() => Boolean)
+  @UseMiddleware(isAuth)
+  async vote(
+    @Arg("postId", () => Int) postId: number,
+    @Arg("value", () => Int) value: number,
+    @Ctx() { req }: ContextType
+  ) {
+    const { userId } = req.session;
+    const point = value !== -1 ? 1 : -1;
+    // await Updoot.insert({
+    //   userId,
+    //   postId,
+    //   value: point,
+    // });
+    const posts = await getConnection().query(
+      `
+      START TRANSACTION;
+
+      INSERT INTO "updoot" ("value", "userId", "postId")
+      VALUES (${point}, ${userId}, ${postId});
+      
+      update post
+      set points = points + ${point}
+      where id = ${postId};
+      
+      COMMIT;
+    `
+    );
+    console.log(`------- posts :`, posts);
+    return true;
   }
 
   @Query(() => PostResponse)
@@ -41,23 +71,23 @@ export class PostResolver {
     }
     const posts = await getConnection().query(
       `
-      select p.*,
-        json_build_object(
-          'id', u.id,
-          'username', u.username,
-          'email', u.email,
-          'createdAt', u."createdAt",
-          'updatedAt', u."updatedAt"
-        ) author
-      from post p
-      inner join public.user u on u.id = p."authorId"
-      ${cursor ? `where p."createdAt" < $2` : ""}
-      order by p."createdAt" DESC
-      limit $1
-    `,
+        select p.*,
+          json_build_object(
+            'id', u.id,
+            'username', u.username,
+            'email', u.email,
+            'createdAt', u."createdAt",
+            'updatedAt', u."updatedAt"
+          ) author
+        from post p
+        inner join public.user u on u.id = p."authorId"
+        ${cursor ? `where p."createdAt" < $2` : ""}
+        order by p."createdAt" DESC
+        limit $1
+      `,
       replacements
     );
-    console.log(`------- posts :`, posts);
+    // console.log(`------- posts :`, posts);
     // const qb = getConnection()
     //   .getRepository(Post)
     //   .createQueryBuilder("p")
@@ -75,19 +105,14 @@ export class PostResolver {
   }
 
   @Query(() => Post, { nullable: true })
-  post(
-    @Arg("postId") id: number
-  ): Promise<Post | undefined> {
+  post(@Arg("postId") id: number): Promise<Post | undefined> {
     // return Post.findOne(id);
     return Post.findOne({ where: { id } });
   }
 
   @Mutation(() => Post)
   @UseMiddleware(isAuth)
-  async createPost(
-    @Arg("input") input: PostInput,
-    @Ctx() { req }: ContextType
-  ): Promise<Post> {
+  async createPost(@Arg("input") input: PostInput, @Ctx() { req }: ContextType): Promise<Post> {
     return Post.create({
       ...input,
       authorId: req.session.userId,
@@ -122,9 +147,7 @@ export class PostResolver {
   }
 
   @Mutation(() => Boolean)
-  async deletePost(
-    @Arg("postId") id: number
-  ): Promise<boolean> {
+  async deletePost(@Arg("postId") id: number): Promise<boolean> {
     // try {
     await Post.delete(id);
     // } catch {

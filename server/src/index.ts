@@ -3,7 +3,7 @@ import ConnectRedis from "connect-redis";
 import cors from "cors";
 import express from "express";
 import session from "express-session";
-import Redis from "ioredis";
+import Redis from "ioredis"; // ~/redis-6.0.10/src/redis-server
 import path from "path";
 import "reflect-metadata";
 import { buildSchema } from "type-graphql";
@@ -21,7 +21,7 @@ const config = {
   migrations: [path.join(__dirname, "/migration/*")],
   username: "",
   password: "",
-  synchronize: false, // auto create table no need to run migration
+  synchronize: true, // auto create table no need to run migration
   type: "postgres",
 } as Parameters<typeof createConnection>[0];
 
