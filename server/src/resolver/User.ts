@@ -48,11 +48,11 @@ export class UserResolver {
     let user;
     try {
       // method 1
-      user = await User.create({
-        username: credentials.username,
-        email: credentials.email,
-        password: hashedPassword,
-      }).save();
+      // user = await User.create({
+      //   username: credentials.username,
+      //   email: credentials.email,
+      //   password: hashedPassword,
+      // }).save();
       // method 2 query builder method
       const result = await getConnection()
         .createQueryBuilder()
