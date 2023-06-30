@@ -37,7 +37,7 @@ const cursorPagination = (): Resolver => {
     const { parentKey: entityKey, fieldName } = info;
     // console.log(`entityKey fieldName :`, entityKey, fieldName); // Query posts
     const allFields = cache.inspectFields(entityKey);
-    console.log(`allFields :`, allFields);
+    // console.log(`allFields :`, allFields);
     const fieldInfos = allFields.filter(
       (info) => info.fieldName === fieldName
     );
@@ -103,6 +103,17 @@ export const createUrqlClient = (ssrExchange: any) => ({
               limit: 5,
             });
             // cache.inspectFields("Query");
+            const allFields = cache.inspectFields("Query");
+            const fieldInfos = allFields.filter(
+              (info) => info.fieldName === "posts"
+            );
+            fieldInfos.forEach((info) => {
+              cache.invalidate(
+                "Query",
+                "posts",
+                info.arguments || {}
+              );
+            });
           },
           login: (_result, args, cache, info) => {
             betterUpdateQuery<LoginMutation, MeQuery>(
