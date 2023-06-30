@@ -1,3 +1,4 @@
+require("dotenv").config();
 import { ApolloServer } from "apollo-server-express";
 import ConnectRedis from "connect-redis";
 import cors from "cors";
@@ -56,7 +57,7 @@ const main = async () => {
       },
       resave: false, // required: force lightweight session keep alive (touch)
       saveUninitialized: false, // recommended: only save session when data exists
-      secret: "keyboard cat", // used to sign/encrypt the session cookie (best be a RANDOM set of characters, and be HIDEN in a ENV variable)
+      secret: process.env.SECRET as string, // used to sign/encrypt the session cookie (best be a RANDOM set of characters, and be HIDEN in a ENV variable)
     })
   );
 
